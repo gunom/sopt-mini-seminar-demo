@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: demo-sopt
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+jwt:
+  secret: asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd
+  expiration-time: 6400000
