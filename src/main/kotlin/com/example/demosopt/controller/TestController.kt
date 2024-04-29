@@ -2,6 +2,8 @@ package com.example.demosopt.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
@@ -56,4 +58,19 @@ class TestController {
     ): ResponseEntity<String> {
         return ResponseEntity.ok("enum: $enum")
     }
+
+    @PostMapping("/with/request-body")
+    @Operation(summary = "Test with request body")
+    fun testWithRequestBody(
+        @RequestBody request: TestRequest
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok("name: ${request.name}, age: ${request.age}")
+    }
+
+    class TestRequest(
+        @field:Schema(description = "이름", required = true, example = "홍길동")
+        val name: String,
+        @field:Schema(description = "나이", required = true, example = "20")
+        val age: Int
+    )
 }
