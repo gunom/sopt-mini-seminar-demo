@@ -7,20 +7,13 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RequestMapping("/api/test")
 @RestController
 @ApiResponses(
     value = [
         ApiResponse(responseCode = "200", description = "OK"),
-        ApiResponse(responseCode = "400", description = "Bad Request"),
-        ApiResponse(responseCode = "404", description = "Not Found"),
-        ApiResponse(responseCode = "500", description = "Internal Server Error")
     ]
 )
 class TestController {
@@ -32,8 +25,8 @@ class TestController {
         @RequestParam(value = "order", defaultValue = "desc", required = true) order: String,
         @RequestParam(value = "size", defaultValue = "10", required = true) size: Int,
         @RequestParam(value = "sort", defaultValue = "id", required = true) sort: String
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok("page: $page, order: $order, size: $size, sort: $sort")
+    ): ResponseEntity<DefaultParameterResponse> {
+        return ResponseEntity.ok(DefaultParameterResponse("page: $page, order: $order, size: $size, sort: $sort"))
     }
 
     @GetMapping("/without/default-param")
@@ -47,24 +40,24 @@ class TestController {
         @RequestParam(value = "size") size: Int,
         @Parameter(description = "정렬 기준", required = true)
         @RequestParam(value = "sort") sort: String
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok("page: $page, order: $order, size: $size, sort: $sort")
+    ): ResponseEntity<NotDefaultParameterResponse> {
+        return ResponseEntity.ok(NotDefaultParameterResponse("page: $page, order: $order, size: $size, sort: $sort"))
     }
 
     @PostMapping("/with/enum")
     @Operation(summary = "Test with enum")
     fun testWithEnum(
         @RequestParam(value = "enum") enum: EnumRequest
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok("enum: $enum")
+    ): ResponseEntity<EnumResponse> {
+        return ResponseEntity.ok(EnumResponse("enum: ${enum.testEnum}"))
     }
 
     @PostMapping("/with/request-body")
     @Operation(summary = "Test with request body")
     fun testWithRequestBody(
         @RequestBody request: TestRequest
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok("name: ${request.name}, age: ${request.age}")
+    ): ResponseEntity<RequestBodyResponse> {
+        return ResponseEntity.ok(RequestBodyResponse("name: ${request.name}, age: ${request.age}"))
     }
 
     class TestRequest(
@@ -73,4 +66,33 @@ class TestController {
         @field:Schema(description = "나이", required = true, example = "20")
         val age: Int
     )
+
+    data class DefaultParameterResponse(
+        @field:Schema(description = "default parameter response", example = "page: 1, order: desc, size: 10, sort: id")
+        val response: String
+    )
+
+    data class NotDefaultParameterResponse(
+        @field:Schema(description = "not default parameter response", example = "page: 1, order: desc, size: 10, sort: id")
+        val response: String
+    )
+
+    data class EnumRequest (
+        @field:Schema(description = "테스트 enum", example = "FUNNY")
+        val testEnum: TestEnum
+    )
+
+    data class EnumResponse(
+        @field:Schema(description = "enum response", example = "enum: FUNNY")
+        val response: String
+    )
+
+    data class RequestBodyResponse(
+        @field:Schema(description = "request body response", example = "name: 홍길동, age: 20")
+        val response: String
+    )
+
+    enum class TestEnum {
+        FUNNY, SAD, HAPPY
+    }
 }
